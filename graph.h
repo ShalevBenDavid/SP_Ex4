@@ -15,15 +15,8 @@ typedef struct GRAPH_NODE_ {
     struct GRAPH_NODE_ *next;
 } node, *pnode;
 
-typedef struct GRAPH {
-    int total_nodes;
-    int total_edges;
-    pnode head_node;
-    pedge head_edge;
-} graph, *pgraph;
-
-void build_graph_cmd(pnode *head, int);
-void insert_node_cmd(pnode *head, int);
+char build_graph_cmd(pnode *head, int);
+int insert_node_cmd(pnode *head, int);
 void delete_node_cmd(pnode *head, int);
 void printGraph_cmd(pnode head); //for self debug
 void deleteGraph_cmd(pnode* head);
