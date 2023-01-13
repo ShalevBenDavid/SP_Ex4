@@ -1,20 +1,23 @@
 // Created by Shalev Ben David on 10/01/2023.
 # include <stdio.h>
 # include <stdlib.h>
-# include "graph.h"
-
-int create_edge(pnode*, int, int, int);
-pnode search_node (pnode*, int);
-int total_nodes (pnode *head);
-int total_edges (pedge *edge);
-void delete_node_edges (pnode);
-void delete_incoming_edges (pnode*, pnode );
-
+# include "edges.h"
+# include "nodes.h"
 
 char build_graph_cmd(pnode *head, int numOfVertexes) {
     char c; // The current char from the input.
-    for (int i = 0; i < numOfVertexes; i++) {
-        insert_node_cmd(head, i);
+    if ((*head = (pnode) malloc(sizeof (node))) == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(EXIT_FAILURE);
+    }
+    pnode p = *head;
+    p -> node_num = 0;
+    p -> edges = NULL;
+    p -> next = NULL;
+    for (int i = 1; i < numOfVertexes; i++) {
+        if (create_node(head, i) == -1) {
+            printf("Couldn't create node %d,\n", i);
+        }
     }
     scanf(" %c", &c);
     again:
@@ -38,7 +41,7 @@ int insert_node_cmd(pnode *head, int vertexNum) {
     pnode temp = search_node(head, vertexNum);
     int dest; // The destination of the edge.
     int weight; // The weight of the edge;
-    if (temp != NULL) {
+    if (temp != NULL) { // If vertex exists.
         if (temp -> edges != NULL) {
             delete_node_edges(temp);
         }
@@ -48,18 +51,11 @@ int insert_node_cmd(pnode *head, int vertexNum) {
             }
         }
     }
-    else {
-        temp = *head;
-        while (temp -> next != NULL) {
-            temp = temp -> next;
-        }
-        temp -> next = (pnode)malloc(sizeof (node));
-        if (temp -> next == NULL) {
-            printf("Memory allocation failed!");
+    else { // If vertex doesnt exists.
+        if (create_node(head, vertexNum) == -1) {
+            printf("Couldn't create node %d,\n", vertexNum);
             return -1;
         }
-        temp -> next -> node_num = vertexNum;
-        temp -> next -> next = NULL;
         while (scanf(" %d %d", &dest, &weight) == 2) { // We received the dest and the weight successfully.
             if (create_edge(head, vertexNum, weight, dest) == -1) {
                 printf("Couldn't create edge from %d to %d with %d weight.\n", vertexNum, dest, weight);
@@ -71,20 +67,25 @@ int insert_node_cmd(pnode *head, int vertexNum) {
 
 void delete_node_cmd (pnode *head, int vertexToDelete) {
     pnode temp = *head;
-    if (temp -> node_num == vertexToDelete) {
+    if (temp -> node_num == vertexToDelete) { // Deleting head.
         delete_incoming_edges(head, temp);
-        head = &temp -> next;
+        delete_node_edges(temp);
+        *head = temp -> next;
         free(temp);
     }
     else {
-        while (temp -> next != NULL && temp -> next-> node_num != vertexToDelete) {
+        while ((temp -> next != NULL) && (temp -> next -> node_num != vertexToDelete)) {
             temp = temp -> next;
         }
         if (temp -> next != NULL) {
             pnode temp1 = temp -> next;
             temp -> next = temp -> next -> next;
             delete_incoming_edges(head, temp1);
+            delete_node_edges(temp1);
             free(temp1);
+        }
+        else {
+            printf("Node %d you wanted to delete wasn't found.\n", vertexToDelete);
         }
     }
 }
@@ -94,14 +95,32 @@ void printGraph_cmd (pnode head) {
     int E = 0;
     while (v != NULL) {
         pedge e = v -> edges;
-        E += total_edges(&e);
+        E += total_edges(e);
+        printf("Vertex: %d, Edges: ", v -> node_num);
+        while (e != NULL) {
+            printf("(w: %d, d: %d)", e -> weight, e -> endpoint -> node_num);
+            e = e -> next;
+        }
+        printf("/n");
         v = v -> next;
     }
-    printf("|E| = %d, |V| = %d", E, total_nodes(&head));
+    printf("|E| = %d, |V| = %d", E, total_nodes(head));
 }
 
 void deleteGraph_cmd(pnode* head) {
-
+    pnode temp = *head;
+    while (temp != NULL) {
+        pedge e = temp -> edges;
+        while (e != NULL) {
+            pedge e1 = e;
+            e = e -> next;
+            free(e1);
+        }
+        pnode temp1 = temp;
+        temp = temp -> next;
+        free(temp1);
+    }
+    free(temp);
 }
 
 void shortsPath_cmd(pnode head, int srcV, int destV) {
@@ -110,106 +129,4 @@ void shortsPath_cmd(pnode head, int srcV, int destV) {
 
 void TSP_cmd(pnode head, int k) {
 
-}
-
-// --------------------------- Edges Methods ---------------------------
-
-int total_edges (pedge *edge) {
-    int totalEdges = 0;
-    pedge temp = *edge;
-    while (temp != NULL) {
-        totalEdges++;
-        temp = temp -> next;
-    }
-    return totalEdges;
-}
-
-int create_edge (pnode* head, int srcV, int weight, int destV) {
-    pnode source = search_node(head, srcV);
-    pnode dest = search_node(head, destV);
-    if (source == NULL || dest == NULL) {
-        return -1;
-    }
-    else {
-        if (source -> edges == NULL) {
-            source -> edges = (pedge)malloc(sizeof(edge));
-            if (source -> edges == NULL) {
-                printf("Memory allocation failed!");
-                return -1;
-            }
-            source -> edges -> next = NULL;
-            source -> edges -> weight = weight;
-            source -> edges -> endpoint = dest;
-        }
-        else {
-            pedge e = source -> edges;
-            while (e -> next != NULL) {
-                e = e -> next;
-            }
-            e -> next = (pedge) malloc(sizeof (edge));
-            if (e -> next == NULL) {
-                printf("Memory allocation failed!");
-                return -1;
-            }
-            e -> next -> next = NULL;
-            e -> next -> weight = weight;
-            e -> next -> endpoint = dest;
-        }
-    }
-    return 0;
-}
-
-void delete_node_edges (pnode v) {
-    if (v -> edges == NULL) {
-        free (v -> edges);
-    }
-    else {
-        while (v -> edges != NULL) {
-            pedge temp = v -> edges;
-            v -> edges = v -> edges -> next;
-            free(temp);
-        }
-    }
-}
-
-void delete_incoming_edges (pnode* head, pnode dest) {
-    pnode temp = *head;
-    while (temp != NULL) {
-        if (temp == dest) {
-            temp = temp -> next;
-        }
-        pedge p = temp -> edges;
-        while (p != NULL) {
-            if (p -> endpoint == dest) {
-                pedge p1 = p;
-                p = p -> next;
-                free(p1);
-                break;
-            }
-        }
-        temp = temp -> next;
-    }
-}
-
-// --------------------------- Nodes Methods ---------------------------
-
-int total_nodes (pnode *head) {
-    int totalNodes = 0;
-    pnode temp = *head;
-    while (temp != NULL) {
-        totalNodes++;
-        temp = temp -> next;
-    }
-    return totalNodes;
-}
-
-pnode search_node (pnode *head, int vertexNum) {
-    pnode temp = *head;
-    while (temp != NULL) {
-        if (temp -> node_num == vertexNum) {
-            return temp;
-        }
-            temp = temp -> next;
-    }
-    return NULL;
 }
