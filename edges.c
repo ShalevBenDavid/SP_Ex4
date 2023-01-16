@@ -69,6 +69,7 @@ void delete_incoming_edges (pnode* head, pnode dest) {
         }
         else {
             if (temp -> edges -> endpoint == dest) {
+                printf("dss");
                 pedge p1 = temp -> edges;
                 temp -> edges = temp -> edges -> next;
                 free(p1);
@@ -81,6 +82,7 @@ void delete_incoming_edges (pnode* head, pnode dest) {
                 if (p -> next != NULL) {
                     pedge p1 = p -> next;
                     p -> next = p -> next -> next;
+                    printf("ass");
                     free(p1);
                 }
             }

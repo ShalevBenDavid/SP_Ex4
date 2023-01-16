@@ -78,11 +78,11 @@ void delete_node_cmd (pnode *head, int vertexToDelete) {
             temp = temp -> next;
         }
         if (temp -> next != NULL) {
-            pnode temp1 = temp -> next;
+            pnode nodeToDelete = temp -> next;
             temp -> next = temp -> next -> next;
-            delete_incoming_edges(head, temp1);
-            delete_node_edges(temp1);
-            free(temp1);
+            delete_incoming_edges(head, nodeToDelete);
+            delete_node_edges(nodeToDelete);
+            free(nodeToDelete);
         }
         else {
             printf("Node %d you wanted to delete wasn't found.\n", vertexToDelete);
@@ -130,29 +130,30 @@ void shortsPath_cmd(pnode head, int srcV, int destV) {
 }
 
 void TSP_cmd(pnode head, int k) {
-    int* permutations = (int*) malloc (factorial(k));
-    int* nodes = (int*) malloc (k);
-    if (permutations == NULL || nodes == NULL) {
+    int factResult = factorial(k);
+    int* permutations = (int*) malloc (factResult);
+    int* cities = (int*) malloc (k);
+    if (permutations == NULL || cities == NULL) {
         printf("Memory allocation failed!\n");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < k; i++) {
-        scanf("%d", &nodes[i]);
+        scanf("%d", &cities[i]);
     }
     int index = 0;
-    find_permutations(&head, nodes, permutations, 0, k - 1, &index);
+    find_permutations(head, cities, permutations, 0, k - 1, &index);
     int minDistance = INFINITY;
-    for (int i = 0; i < factorial(k); i++) {
-        if (permutations[i] < minDistance) {
+    for (int i = 0; i < factResult; i++) {
+        if (permutations[i] < minDistance && permutations[i] >= 0) {
             minDistance = permutations[i];
         }
     }
-    if (minDistance != INFINITY){
+    if (minDistance != INFINITY) {
         printf("TSP shortest path: %d \n", minDistance);
     }
     else {
-        printf("TSP shortest path: %d \n",-1);
+        printf("TSP shortest path: %d \n", -1);
     }
     free(permutations);
-    free(nodes);
+    free(cities);
 }

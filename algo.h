@@ -16,11 +16,12 @@ typedef struct priority_queue_ {
 } queue, *pqueue;
 
 int dijkstra (pnode, pnode, pnode);
-pqueue createQueue (pnode, pnode);
+void createQueue (pqueue*, pnode, pnode);
 pqueue search_queue(pqueue, pnode);
+pqueue get_min_unvisited_queue(pqueue);
 void delete_queue(pqueue*);
 int factorial(int);
-void find_permutations(pnode*, int*, int*, int, int, int *);
-int shortest_path(pnode *head, int  [], int size);
+void find_permutations(pnode, int*, int*, int, int, int *);
+int shortest_path(pnode, int[], int);
 
 #endif //SP_EX4_ALGO_H
