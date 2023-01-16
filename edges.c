@@ -15,8 +15,8 @@ int total_edges (pedge edge) {
 }
 
 int create_edge (pnode* head, int srcV, int weight, int destV) {
-    pnode source = search_node(head, srcV);
-    pnode dest = search_node(head, destV);
+    pnode source = search_node(*head, srcV);
+    pnode dest = search_node(*head, destV);
     if (source == NULL || dest == NULL) {
         return -1;
     }

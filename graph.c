@@ -3,9 +3,10 @@
 # include <stdlib.h>
 # include "edges.h"
 # include "nodes.h"
+# include "algo.h"
 
-char build_graph_cmd(pnode *head, int numOfVertexes) {
-    char c; // The current char from the input.
+void build_graph_cmd(pnode *head, int numOfVertexes) {
+    char c;
     if ((*head = (pnode) malloc(sizeof (node))) == NULL) {
         printf("Memory allocation failed!\n");
         exit(EXIT_FAILURE);
@@ -19,26 +20,25 @@ char build_graph_cmd(pnode *head, int numOfVertexes) {
             printf("Couldn't create node %d,\n", i);
         }
     }
-    scanf(" %c", &c);
-    again:
-    if (c == 'n') {
-        int node_num; // The node ID.
-        scanf(" %d", &node_num);
-        int dest; // The destination of the edge.
-        int weight; // The weight of the edge;
-        while (scanf(" %d %d", &dest, &weight) == 2) { // We received the dest and the weight successfully.
-            if (create_edge(head, node_num, weight, dest) == -1) {
-                printf("Couldn't create edge from %d to %d with %d weight.\n", node_num, dest, weight);
+    for (int i = 0; i < numOfVertexes; i++) {
+        scanf(" %c", &c);
+        if (c == 'n') {
+            int node_num; // The node ID.
+            scanf(" %d", &node_num);
+            int dest; // The destination of the edge.
+            int weight; // The weight of the edge;
+            while (scanf(" %d %d", &dest, &weight) == 2) { // We received the dest and the weight successfully.
+                if (create_edge(head, node_num, weight, dest) == -1) {
+                    printf("Couldn't create edge from %d to %d with %d weight.\n", node_num, dest, weight);
+                }
             }
         }
-        scanf(" %c", &c);
-        goto again;
     }
-    return c;
 }
 
 int insert_node_cmd(pnode *head, int vertexNum) {
-    pnode temp = search_node(head, vertexNum);
+    pnode t = *head;
+    pnode temp = search_node(t, vertexNum);
     int dest; // The destination of the edge.
     int weight; // The weight of the edge;
     if (temp != NULL) { // If vertex exists.
@@ -101,10 +101,10 @@ void printGraph_cmd (pnode head) {
             printf("(w: %d, d: %d)", e -> weight, e -> endpoint -> node_num);
             e = e -> next;
         }
-        printf("/n");
+        printf("\n");
         v = v -> next;
     }
-    printf("|E| = %d, |V| = %d", E, total_nodes(head));
+    printf("|E| = %d, |V| = %d\n", E, total_nodes(head));
 }
 
 void deleteGraph_cmd(pnode* head) {
@@ -124,9 +124,35 @@ void deleteGraph_cmd(pnode* head) {
 }
 
 void shortsPath_cmd(pnode head, int srcV, int destV) {
-
+    pnode src = search_node(head, srcV);
+    pnode dest = search_node(head, destV);
+    printf("Dijsktra shortest path: %d \n", dijkstra(head, src, dest));
 }
 
 void TSP_cmd(pnode head, int k) {
-
+    int* permutations = (int*) malloc (factorial(k));
+    int* nodes = (int*) malloc (k);
+    if (permutations == NULL || nodes == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < k; i++) {
+        scanf("%d", &nodes[i]);
+    }
+    int index = 0;
+    find_permutations(&head, nodes, permutations, 0, k - 1, &index);
+    int minDistance = INFINITY;
+    for (int i = 0; i < factorial(k); i++) {
+        if (permutations[i] < minDistance) {
+            minDistance = permutations[i];
+        }
+    }
+    if (minDistance != INFINITY){
+        printf("TSP shortest path: %d \n", minDistance);
+    }
+    else {
+        printf("TSP shortest path: %d \n",-1);
+    }
+    free(permutations);
+    free(nodes);
 }

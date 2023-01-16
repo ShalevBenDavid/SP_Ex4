@@ -14,8 +14,8 @@ int total_nodes (pnode head) {
     return totalNodes;
 }
 
-pnode search_node (pnode *head, int vertexNum) {
-    pnode temp = *head;
+pnode search_node (pnode head, int vertexNum) {
+    pnode temp = head;
     while (temp != NULL) {
         if (temp -> node_num == vertexNum) {
             return temp;
