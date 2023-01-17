@@ -130,7 +130,7 @@ void shortsPath_cmd(pnode head, int srcV, int destV) {
 }
 
 void TSP_cmd(pnode head, int k) {
-    int* cities = (int*) malloc (k);
+    int* cities = (int*) malloc (k * sizeof(int));
     if ( cities == NULL) {
         printf("Memory allocation failed!\n");
         exit(EXIT_FAILURE);
