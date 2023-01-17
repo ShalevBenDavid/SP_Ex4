@@ -62,36 +62,29 @@ void delete_node_edges (pnode v) {
 }
 
 void delete_incoming_edges (pnode* head, pnode dest) {
-    pnode temp = *head;
-    while (temp != NULL) {
-        if(temp -> edges == NULL) {
-            return;
-        }
-        if (temp == dest) { // There cant be an edge from a node to himself.
-            temp = temp -> next;
+pnode temp = *head;
+while (temp != NULL) {
+    if (temp -> edges == NULL || temp == dest) { // There cant be an edge from a node to himself.
+        temp = temp -> next;
+    }
+    else {
+        if (temp -> edges -> endpoint == dest) {
+            pedge edgeToDelete = temp -> edges;
+            temp -> edges = temp -> edges -> next;
+            free(edgeToDelete);
         }
         else {
-            if (temp -> edges -> endpoint == dest) {
-                pedge p1 = temp -> edges;
-                temp -> edges = temp -> edges -> next;
-                free(p1);
+            pedge p = temp -> edges;
+            while ((p -> next != NULL) && (p -> next -> endpoint != dest)) {
+                p = p -> next;
             }
-            else {
-                pedge p = temp -> edges;
-                while ((p -> next -> next != NULL) && (p -> next -> endpoint != dest)) {
-                    p = p -> next;
-                }
-                if (p->next->next == NULL && (p -> next -> endpoint == dest)) {
-                    pedge p1 = p->next;
-                    p = NULL;
-                    free(p1);
-                } else {
-                    pedge p1 = p -> next;
+            if (p -> next != NULL) {
+                    pedge edgeToDelete = p -> next;
                     p -> next = p -> next -> next;
-                    free(p1);
+                    free(edgeToDelete);
                 }
             }
-            temp = temp -> next;
         }
+        temp = temp -> next;
     }
 }
