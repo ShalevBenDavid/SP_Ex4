@@ -99,18 +99,13 @@ void delete_queue(pqueue* headq) {
 
 // ----------------------------------- TSP Methods -----------------------------------
 
-int factorial(int n){
-    int res = 1;
-    for (int i = 1; i <= n; i++) {
-        res *= i;
-    }
-    return res;
-}
-
 // Recursive chain to update paths of permutation.
-void find_permutations(pnode head, int* cities, int* permutations, int left, int right, int *index) {
+void find_permutations(pnode head, int* cities, int left, int right, int *minDistance) {
     if (left == right) {
-        permutations[*index++] = shortest_path(head, cities, right);
+        int saveDist = shortest_path(head, cities, right);
+        if (saveDist < *minDistance) {
+            *minDistance = saveDist;
+        }
         return;
     }
     else {
@@ -118,7 +113,7 @@ void find_permutations(pnode head, int* cities, int* permutations, int left, int
             int temp = cities[i];
             cities[i] = cities[left];
             cities[left] = temp;
-            find_permutations(head, cities, permutations, left + 1, right, index);
+            find_permutations(head, cities, left + 1, right, minDistance);
             temp = cities[i];
             cities[i] = cities[left];
             cities[left] = temp;
@@ -127,11 +122,11 @@ void find_permutations(pnode head, int* cities, int* permutations, int left, int
 }
 
 // Sums the shortest path along cities[0] to cities[size].
-int shortest_path(pnode head, int nodes[], int size){
+int shortest_path(pnode head, int cities[], int size) {
     int dist = 0;
     for (int i = 0; i < size; i++) {
-        pnode s = search_node(head, nodes[i]);
-        pnode d = search_node(head, nodes[i + 1]);
+        pnode s = search_node(head, cities[i]);
+        pnode d = search_node(head, cities[i + 1]);
         int shortestDist = dijkstra(head, s, d);
         if (shortestDist == -1) {
             return INT_MAX;

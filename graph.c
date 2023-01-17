@@ -1,4 +1,4 @@
-// Created by Shalev Ben David on 10/01/2023.
+// Created by Shalev Ben David.
 # include <stdio.h>
 # include <stdlib.h>
 # include "edges.h"
@@ -67,25 +67,25 @@ int insert_node_cmd(pnode *head, int vertexNum) {
 
 void delete_node_cmd (pnode *head, int vertexToDelete) {
     pnode temp = *head;
-    if (temp -> node_num == vertexToDelete) { // Deleting head.
-        delete_incoming_edges(head, temp);
-        delete_node_edges(temp);
-        *head = temp -> next;
-        free(temp);
-    }
-    else {
-        while ((temp -> next != NULL) && (temp -> next -> node_num != vertexToDelete)) {
-            temp = temp -> next;
-        }
-        if (temp -> next != NULL) {
-            pnode nodeToDelete = temp -> next;
-            temp -> next = temp -> next -> next;
-            delete_incoming_edges(head, nodeToDelete);
-            delete_node_edges(nodeToDelete);
-            free(nodeToDelete);
-        }
-        else {
-            printf("Node %d you wanted to delete wasn't found.\n", vertexToDelete);
+    if (temp != NULL) {
+        if (temp -> node_num == vertexToDelete) { // Deleting head.
+            delete_incoming_edges(head, temp);
+            delete_node_edges(temp);
+            *head = temp -> next;
+            free(temp);
+        } else {
+            while ((temp -> next != NULL) && (temp -> next -> node_num != vertexToDelete)) {
+                temp = temp -> next;
+            }
+            if (temp -> next != NULL) {
+                pnode nodeToDelete = temp -> next;
+                temp -> next = temp -> next -> next;
+                delete_incoming_edges(head, nodeToDelete);
+                delete_node_edges(nodeToDelete);
+                free(nodeToDelete);
+            } else {
+                printf("Node %d you wanted to delete wasn't found.\n", vertexToDelete);
+            }
         }
     }
 }
@@ -130,30 +130,21 @@ void shortsPath_cmd(pnode head, int srcV, int destV) {
 }
 
 void TSP_cmd(pnode head, int k) {
-    int factResult = factorial(k);
-    int* permutations = (int*) malloc (factResult);
     int* cities = (int*) malloc (k);
-    if (permutations == NULL || cities == NULL) {
+    if ( cities == NULL) {
         printf("Memory allocation failed!\n");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < k; i++) {
         scanf("%d", &cities[i]);
     }
-    int index = 0;
-    find_permutations(head, cities, permutations, 0, k - 1, &index);
     int minDistance = INFINITY;
-    for (int i = 0; i < factResult; i++) {
-        if (permutations[i] < minDistance && permutations[i] >= 0) {
-            minDistance = permutations[i];
-        }
-    }
+    find_permutations(head, cities, 0, k - 1, &minDistance);
     if (minDistance != INFINITY) {
         printf("TSP shortest path: %d \n", minDistance);
     }
     else {
         printf("TSP shortest path: %d \n", -1);
     }
-    free(permutations);
     free(cities);
 }
